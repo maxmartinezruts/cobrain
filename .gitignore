@@ -1,0 +1,9 @@
+# The key is a credential, not source. It lives in settings.local.json; the
+# committed shape is settings.example.json. settings.json is the shared half
+# (permissions only) and is meant to be committed.
+.claude/settings.local.json
+.env
+.env.*
+*.bak
+
+.DS_Store

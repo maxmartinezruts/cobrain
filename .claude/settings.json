@@ -1,0 +1,18 @@
+{
+  "env": {
+    "BRAIN_URL": "https://tidy-pig-578.eu-west-1.convex.site"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(jq:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:docs.anthropic.com)"
+    ],
+    "deny": [
+      "Read(./.claude/settings.local.json)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}

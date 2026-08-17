@@ -1,0 +1,5 @@
+{
+  "env": {
+    "BRAIN_KEY": "brain_<paste from Settings → API keys>"
+  }
+}
