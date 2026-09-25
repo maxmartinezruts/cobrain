@@ -1,6 +1,6 @@
 {
   "env": {
-    "BRAIN_URL": "https://api.cobrain.ch"
+    "COBRAIN_URL": "https://api.cobrain.ch"
   },
   "permissions": {
     "allow": [

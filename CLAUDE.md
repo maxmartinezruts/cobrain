@@ -1,39 +1,72 @@
 # cobrain
 
 **This repo holds no application code, and nothing here is meant to grow into
-any.** It is a workspace whose subject is somewhere else: the live *brain*
-workspace, reached over HTTP with a workspace API key. The brain **product's**
+any.** It is a workspace whose subject is somewhere else: the live *cobrain*
+workspace, reached over HTTP with a workspace API key. The cobrain **product's**
 source lives in `../brain` — if the question is about how a feature is
 implemented, that is the repo to open, not this one.
 
 So: no build, no dev server, no tests. Every answer here is a request against a
 running deployment, and every write lands on real business data.
 
-## The key
+## The keys — one per workspace
 
-**The split is by what is secret, not by what is configuration.** `$BRAIN_URL` is
+**The split is by what is secret, not by what is configuration.** `$COBRAIN_URL` is
 a deployment address — the same for everybody, no credential — so it lives in the
-committed `.claude/settings.json` alongside the permissions. `$BRAIN_KEY` is the
-credential and lives **only** in `.claude/settings.local.json`, which is
-gitignored; `.claude/settings.example.json` is that file's committed shape and
-holds nothing else. So setup is one paste, from the workspace's **Settings → API
-keys** page, and pointing this repo at a different deployment is an optional
-`BRAIN_URL` in the local file overriding the shared default.
+committed `.claude/settings.json` alongside the permissions. The keys are
+credentials and live **only** in `.claude/settings.local.json`, which is
+gitignored; `.claude/settings.example.json` is that file's committed shape.
+
+A key belongs to **one workspace**, and this repo may hold several: one variable
+per workspace, `COBRAIN_KEY_<WORKSPACE>`, the suffix being the name the user calls
+it by (`COBRAIN_KEY_ACME`, `COBRAIN_KEY_GLOBEX`). Adding a workspace is one more
+line: a `cobrain_…` key minted on that workspace's **Your account → Your API
+keys** page (`/w/<slug>/account`).
+
+There is still only one `$COBRAIN_URL` — `https://api.cobrain.ch` in production.
+Every workspace lives on the same deployment, and the key alone tells the server
+which workspace a request is for. Pointing the whole repo at another deployment
+(a dev one, say) is an optional `COBRAIN_URL` in the local file — which is why
+commands always write `$COBRAIN_URL`, never the literal address.
+
+**Pick the workspace before the first call, every session.** List what is
+configured — names only, never print a value:
 
 ```bash
-curl -s -H "authorization: Bearer $BRAIN_KEY" "$BRAIN_URL/api/m/discover" | jq
+env | cut -d= -f1 | grep '^COBRAIN_KEY_' | sed 's/^COBRAIN_KEY_//'
 ```
 
-**The key acts as the member who created it**, with their exact standing. Folder
+- The user named one (any casing, `-`/space for `_`) and it is in the list: use it.
+- Exactly one is configured: use it, and say which.
+- Otherwise — none named, a name that isn't in the list, or a request that could
+  mean more than one — **ask**, offering the configured names. Don't guess from
+  the content of the question.
+- Nothing configured: tell the user to add a `COBRAIN_KEY_<WORKSPACE>` line to
+  `.claude/settings.local.json`; don't go looking for a key elsewhere.
+
+Once chosen, it holds for the session until the user switches. Name it in every
+answer that touches data, and **name it again in every write confirmation** — the
+same path can exist in two workspaces. Spell the variables out in each call (the
+shell does not keep state between calls):
+
+```bash
+curl -s -H "authorization: Bearer $COBRAIN_KEY_ACME" "$COBRAIN_URL/api/m/discover" | jq
+```
+
+There is only one kind of key: it is bound to **one workspace** and acts as **one
+person**. **The key acts as the member who created it**, with their exact standing,
+and it stops working if that person leaves the workspace. Folder
 rules apply, and a folder that member may not read is simply *absent* rather than
 refused — an empty tree is not proof the workspace is empty. There is no
 read-only key: every key is read **and** write.
 
 ## Two calls reach the whole surface
 
+`<WS>` below is the chosen workspace's suffix.
+
 ```bash
-curl -s -H "authorization: Bearer $BRAIN_KEY" "$BRAIN_URL/api/m/discover"
-curl -s -H "authorization: Bearer $BRAIN_KEY" "$BRAIN_URL/api/m/<module>/discover"
+curl -s -H "authorization: Bearer $COBRAIN_KEY_<WS>" "$COBRAIN_URL/api/m/discover"
+curl -s -H "authorization: Bearer $COBRAIN_KEY_<WS>" "$COBRAIN_URL/api/m/<module>/discover"
 ```
 
 The first is the **index**: every module this workspace has installed, what it is
@@ -68,7 +101,7 @@ events).
   snippet — copy it from the response.
 - **Accounting's `/v1/discover` documents the wrong auth.** It claims
   `Bearer lk_live_…` and a `POST /v1/bootstrap`; both are inherited from Ledger
-  and neither exists here. Use the brain key, like every other module.
+  and neither exists here. Use the cobrain key, like every other module.
 - **`files/file` returns text only.** An image, a PDF or an office file is not
   readable through it — say so rather than describing a file you never saw.
 

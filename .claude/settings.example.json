@@ -1,5 +1,6 @@
 {
   "env": {
-    "BRAIN_KEY": "brain_<paste from Settings → API keys>"
+    "COBRAIN_KEY_ACME": "cobrain_<from Your account → Your API keys, in the ACME workspace>",
+    "COBRAIN_KEY_GLOBEX": "cobrain_<from Your account → Your API keys, in the GLOBEX workspace>"
   }
 }

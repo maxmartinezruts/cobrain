@@ -1,6 +1,6 @@
-# The key is a credential, not source. It lives in settings.local.json; the
-# committed shape is settings.example.json. settings.json is the shared half
-# (permissions only) and is meant to be committed.
+# The keys (one COBRAIN_KEY_<WORKSPACE> per workspace) are credentials, not source.
+# They live in settings.local.json; the committed shape is settings.example.json.
+# settings.json is the shared half (COBRAIN_URL + permissions) and is committed.
 .claude/settings.local.json
 .env
 .env.*
